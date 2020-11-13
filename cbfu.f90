@@ -57,7 +57,7 @@ module calculations
         subroutine calc
 
             real(8), allocatable, dimension(:) :: A, B, A1, B1, x, y
-            real(8), allocatable, dimension(:) :: m1, m2, m3, m4, 11, 12, 13, 14
+            real(8), allocatable, dimension(:) :: m1, m2, m3, m4, l1, l2, l3, l4
             integer :: time, step, t, check_step, idum1, idum2
             integer :: site, i, j, alpha_step
             character :: ft*5, fm*20
@@ -83,7 +83,7 @@ module calculations
             open(unit=2, file=fname//"_A.dat", access = "sequential")
             !! open(unit=2, file=fname//"_B.dat", access = "sequential")
 
-            write(ft, '(i5.5') latt_size
+            write(ft, '(i5.5)') latt_size
             fm = '(' // ft // '(F8.4, 2X))'
 
             write(2, fm) A
@@ -144,7 +144,7 @@ module calculations
                 A = A1
                 B = B1
 
-                if (t == ckeck_step) then
+                if (t == check_step) then
                     write(2,fm) A
                     ! write(3,fm) B
                     check_step = check_step + step
@@ -163,7 +163,7 @@ module calculations
 
         subroutine initial_conditioins(A,B)
             integer :: i, j, site, r1, r2
-            real(8), dimension(1:latt_size), intene(out) :: A,B
+            real(8), dimension(1:latt_size), intent(out) :: A,B
 
             select case(ic)
             case('r')
@@ -199,18 +199,18 @@ module calculations
 
         ! write parameters values
         subroutine writing
-            open(uni1 = 1, file = fname // "_param.dat", access = "sequential")
+            open(unit = 1, file = fname // "_param.dat", access = "sequential")
             write(1,*) "parameter values for the data in the files called cx_cy_*.dat"
             write(1, *) "************************************************************"
             write( 1 , '(2 (A4, 1X, I3 , 6X) )' ) "nx=", nx , "ny=", ny
             write( 1 , '(A4, F5.3 ,3X, A6, F8.0 )' ) " dt=", dt , "time=", real_time
             write( 1 , '(A14, 1X, F5.0, 1X, A10 )' ) " writing every ", s , " time units "
-            write( 1 , ∗ ) " initial conditions = " , ic
-            write( 1 , '( 2 (A7, 1X, I3 , 6X)) ' ) " seedA=", idum1 , " seedB=" , idum2
-            write( 1 , ∗ ) " ∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗ model parameters ∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗ "
-            write( 1 , '( 3 (A7, 1X, F5.3, 3X)) ' ) "gamma=", gamma, " K=" ,K, " b=" , b
+            write( 1 , * ) " initial conditions = " , ic
+            write( 1 , '( 2 (A7, 1X, I3 , 6X))' ) " seedA=", idum1 , " seedB=" , idum2
+            write( 1 , * ) " ******************* model parameters ************************** "
+            write( 1 , '( 3 (A7, 1X, F5.3, 3X))' ) "gamma=", gamma, " K=" ,K, " b=" , b
             write( 1 , '(A8, 1X, F6.3) ' ) " beta_R=" , beta_R
-            write( 1 , ∗ ) " alpha = ", alpha0 , " + " , alpha1, " ∗ ( time / " , speedOFalpha , " ) "
+            write( 1 , * ) " alpha = ", alpha0 , " + " , alpha1, " * ( time / " , speedOFalpha , " ) "
             close( 1 )
         end subroutine
         ! --------------------------------------------------------
@@ -242,20 +242,20 @@ module calculations
                 sum_repr = 0.d0
                 select case(lattice_site)
                 case(1) ! odd row - odd column and even row - even column
-                    site_ r = mod( nx − mod( nx−i +2,nx ) , nx )∗ny + j ! site up
-                    sum_repr = 1.d0 / ( 1.d0 + ( x( site_r)/K )∗∗2 ) + sum_repr
-                    site_r = mod( i , nx )∗ny + j !site down
-                    sum_repr = 1.d0 / ( 1.d0 + ( x( site_r ) /K)∗∗2 ) + sum_repr
+                    site_r = mod( (nx - mod( nx - i + 2, nx )), nx ) * ny + j ! site up
+                    sum_repr = 1.d0 / ( 1.d0 + ( x(site_r)/K )**2 ) + sum_repr
+                    site_r = mod( i , nx )*ny + j !site down
+                    sum_repr = 1.d0 / ( 1.d0 + ( x(site_r)/K )**2 ) + sum_repr
 
                 case(2) ! odd row -even column
-                    site_r = ( i −1)∗ny + ny − mod( ny−j +1,ny ) ! site left
-                    sum_repr = 1.d0 / ( 1.d0 + ( x( site_r ) /K)∗∗2 ) + sum_repr
-                    site_r = ( i −1)∗ny + mod( j , ny ) + 1 ! site right
-                    sum_repr = 1.d0 / ( 1.d0 + ( x ( site_r ) /K)∗∗2 ) + sum_repr
+                    site_r = ( i - 1)*ny + ny - mod( ny - j + 1,ny ) ! site left
+                    sum_repr = 1.d0 / ( 1.d0 + ( x( site_r ) /K)**2 ) + sum_repr
+                    site_r = ( i - 1)*ny + mod( j , ny ) + 1 ! site right
+                    sum_repr = 1.d0 / ( 1.d0 + ( x ( site_r ) /K)**2 ) + sum_repr
                 endselect
 
-                f = alpha / ( 1.d0 + ( y (site) / K) ) ∗ ( b + x (site)∗∗2 ) / ( 1.d0 + x (site)∗∗2 ) &
-                    & − x(site) + beta_R ∗ sum_repr !+ beta_A ∗ sum_active
+                f = alpha / ( 1.d0 + ( y (site) / K) ) * ( b + x (site)**2 ) / ( 1.d0 + x (site)**2 ) &
+                    & - x(site) + beta_R * sum_repr !+ beta_A * sum_active
 
             case('b')
                 f = gamma * ( x(site) - y(site) )
@@ -269,28 +269,28 @@ module calculations
             integer :: idum, ia, im, iq, ir, ntab, ndiv
             REAL( 8 ) :: am, eps, rnmx
             PARAMETER ( ia =16807 ,im=2147483647 ,am=1./im , iq =127773 , ir=2836, &
-                ntab =32, ndiv=1+(im−1)/ ntab , eps =1.2e−7,rnmx=1.−eps )
+                & ntab=32, ndiv=1+(im-1)/ntab, eps=1.2e-7,rnmx=1.- eps )
             INTEGER :: j, k, iv(ntab), iy
             SAVE iv, iy
-            DATA iv /NTAB∗0 /, iy /0/
+            DATA iv /ntab*0/, iy /0/
         
             if ( ( idum == 0 ) .OR. ( iy==0) ) then
-                idum = MAX(−idum , 1 )
-                DO j = ntab +8,1,−1
+                idum = MAX(-idum , 1 )
+                DO j = ntab +8,1,-1
                     k = idum/ iq
-                    idum = ia ∗(idum−k∗ iq )−ir ∗k
+                    idum = ia *(idum - k* iq )-ir *k
                     IF ( idum < 0 ) idum = idum+im
                     IF ( j <= ntab ) iv(j) = idum
                 ENDDO
                 iy = iv( 1 )
             endif
             k = idum/iq
-            idum = ia ∗(idum− k∗iq ) − ir∗k
+            idum = ia *(idum - k*iq ) - ir*k
             if ( idum < 0 ) idum = idum+IM
             j = 1+iy / ndiv
             iy = iv ( j )
             iv( j ) = idum
-            ran1 = MIN(am∗ iy , rnmx )
+            ran1 = MIN(am* iy , rnmx )
             
         end function ran1
 
@@ -302,8 +302,8 @@ program cbfu
     implicit none
     integer :: beginning, rate, en, cn, i
     character(len=22) :: arg
-    character :: : cx∗3 , c ∗3 , broj∗12, da∗8 ,ti∗10 ! new
-    call system _clock (beginning, rate)
+    character :: cx*3 , cy*3 , broj*12, da*8 ,ti*10 ! new
+    call system_clock(beginning, rate)
     ! set the default values for the program variables
 
     nx = 10
@@ -319,13 +319,13 @@ program cbfu
     speedOFalpha = 4000.d0
 
     ! this block will give the name to the fila as before, if you give it in the  command line it will be overwritten
-     ! ∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗
+    ! *************************************
     write ( cx , ' ( i3.3 ) ' ) nx
     write ( cy , ' ( i3.3 ) ' ) ny
     call date_and_time ( da , ti )
     write ( broj, ' (A8, A4) ' ) da , ti
     fname = cx // "x" // cy // "_" // broj
-    ! ∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗
+    ! *************************************
 
     cn = command_argument_count()
 
@@ -337,7 +337,7 @@ program cbfu
     close(1)
     
     open( unit=2, file="input.dat" , status="old" , action="read" , access="sequential" )
-        do i=1 , cn−1, 2
+        do i=1 , cn-1, 2
             call getarg(i, arg)
             
             if(arg == "nx") then
