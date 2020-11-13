@@ -2,9 +2,15 @@
 Python module to execute FORTRAN scripts for simulation of Bistable Frustrated Units (BFUs), to create plots, lattice diagrams and movies, and to organize
 the files according to simulation parameters.
 '''
+import os
+import glob
+import numpy as np
+from multiprocessing import Process
+from subprocess import call#
+import random
+import matplotlib.pyplot as plt
 
-def execute_fortran( script_name ,NROWS,BETA_R,T_FINAL,T_STEP,ALPHA_START,ALPHA_STEP
-,ALPHA_SPEED,WRITE_STEP,A_SEED,B_SEED,FILENAME) :
+def execute_fortran( script_name, NROWS, BETA_R, T_FINAL, T_STEP, ALPHA_START, ALPHA_STEP, ALPHA_SPEED, WRITE_STEP, A_SEED, B_SEED, FILENAME):
     '''
     function to execute the fortran code
     '''
@@ -145,7 +151,7 @@ def segment_plots(prefix, protein_name, n_bfu, write_step, start_time, stop_time
     write_step = int(float(write_step))
     start_time = int(start_time)
     stop_time = int(stop_time)
-    mid_id = int(n_bfu/2) + 15
+    ! mid_id = int(n_bfu/2) + 15
 
     # make the array of evolution of 6 oscillators
     image = []
@@ -189,7 +195,7 @@ def segment_plots(prefix, protein_name, n_bfu, write_step, start_time, stop_time
     for y_series in image:
         if len(x_series) != len(y_series):
             print("segment_plots: x and y series have different lengths!\n")
-            print("x_series: %d y_series: %d", %(len(x_series, len(y_series))))
+            print("x_series: %d y_series: %d" %( len(x_series, len(y_series) ) ) )
             quit()
         else:
             plt.plot(x_series, y_series, label = str(count))
